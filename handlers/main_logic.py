@@ -69,6 +69,7 @@ async def downloader(msg: types.Message):
                     'a', attrs={'target': '_blank'})
 
                 download_link = get_all_blank[0].get('href')
+                await msg.answer("Ждите, видео скачивается:)")
                 get_content = requests.get(download_link)
                 
 
@@ -87,10 +88,11 @@ async def downloader(msg: types.Message):
                 await bot.send_video(msg.from_user.id,video_)
                 os.remove(b)
 
-            elif msg.text[:19]=="https://youtube.com":
+            elif msg.text[:19]=="https://youtube.com" or msg.text[:17]=="https://youtu.be/":
 
                 yt = pytube.YouTube(msg.text)
                 stream = yt.streams.get_highest_resolution()
+                await msg.answer("Ждите, видео скачивается:)")
                 a=stream.download()
                 b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
                 os.rename(a,b)
@@ -105,7 +107,7 @@ async def downloader(msg: types.Message):
         await msg.answer("Видео недоступно для скачивания:(")
 
     except Exception as e:
-        await bot.send_message(524845066,f"Ошибка!! \n{e}")
+        await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
         print(e)
         await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
 def register_handlers(dp: Dispatcher, bot_: Bot):
