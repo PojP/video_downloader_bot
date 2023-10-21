@@ -24,7 +24,7 @@ async def downloader(msg: types.Message):
     print("work")
     try:
         if validators.url(msg.text):
-            if msg.text[:23]=="https://www.tiktok.com/":
+            if "tiktok.com/" in msg.text:
                 pyk.save_tiktok(msg.text,
                         True,
                         'video_data.csv',
