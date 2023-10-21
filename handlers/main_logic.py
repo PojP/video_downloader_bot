@@ -2,7 +2,6 @@ from aiogram import Dispatcher, types, Bot
 from aiogram.filters.command import Command
 from aiogram.types import CallbackQuery, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-import pyktok as pyk
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import F
