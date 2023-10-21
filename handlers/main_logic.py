@@ -84,9 +84,15 @@ async def downloader(msg: types.Message):
             
                 print(f"B IS HERE: {b}")
 
-                video_=FSInputFile(b)
-                await bot.send_video(msg.from_user.id,video_)
-                os.remove(b)
+                try:
+                    video_=FSInputFile(b)
+                    await bot.send_video(msg.from_user.id,video_)
+                except Exception as e:
+                    await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
+                    print(e)
+                    await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
+                finally:
+                    os.remove(b)
 
             elif msg.text[:19]=="https://youtube.com" or msg.text[:17]=="https://youtu.be/":
 
@@ -97,9 +103,15 @@ async def downloader(msg: types.Message):
                 b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
                 os.rename(a,b)
                 print(b)
-                video_=FSInputFile(b)
-                await bot.send_video(msg.from_user.id,video_)
-                os.remove(b)
+                try:
+                    video_=FSInputFile(b)
+                    await bot.send_video(msg.from_user.id,video_)
+                except Exception as e:
+                    await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
+                    print(e)
+                    await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
+                finally:
+                    os.remove(b)
             else:
                 await msg.answer("Неправильный url")
     
