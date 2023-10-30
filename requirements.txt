@@ -4,7 +4,6 @@ pydantic_settings
 validators
 pyktok
 
-
 beautifulsoup4
 browser-cookie3
 numpy

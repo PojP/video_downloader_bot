@@ -86,7 +86,7 @@ async def downloader(msg: types.Message):
 
                 try:
                     video_=FSInputFile(b)
-                    await bot.send_video(msg.from_user.id,video_)
+                    await bot.send_video(msg.chat.id,video_)
                 except Exception as e:
                     await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
                     print(e)
@@ -99,18 +99,33 @@ async def downloader(msg: types.Message):
                 yt = pytube.YouTube(msg.text)
                 stream = yt.streams.get_highest_resolution()
                 await msg.answer("Ждите, видео скачивается:)")
+
+                print(yt.thumbnail_url)
+                thumbnail_url=requests.get(yt.thumbnail_url.split('?')[0])
+                
+                th_a=msg.text[23:].split('?')[0].replace('/','_')+".jpeg"
+                with open(th_a, 'wb') as fd:
+                    fd.write(thumbnail_url.content)
+                
+
+
                 a=stream.download()
                 b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
                 os.rename(a,b)
                 print(b)
                 try:
                     video_=FSInputFile(b)
-                    await bot.send_video(msg.from_user.id,video_)
+                    thumbnail_=FSInputFile(th_a)
+                    await bot.send_video(msg.chat.id,
+                                         thumbnail=thumbnail_,
+                                         video=video_,
+                                         supports_streaming=True)
                 except Exception as e:
                     await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
                     print(e)
                     await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
                 finally:
+                    os.remove(th_a)
                     os.remove(b)
             else:
                 await msg.answer("Неправильный url")
