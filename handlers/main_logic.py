@@ -23,6 +23,59 @@ from pytube.exceptions import VideoUnavailable
 bot = None
 
 
+
+
+
+
+import re
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
+import requests as r
+from selenium.webdriver.common.by import By
+
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+
+driver = webdriver.Chrome(options=options)
+
+
+def is_instagram_reels_url(url) -> bool:
+    """
+    Check the url is instagram reels url?
+    :param url: instagram reels url
+    :return: bool
+    """
+    pattern = r"https?://(?:www\.)?instagram\.com/reel/.*"
+    match = re.match(pattern, url)
+    if match:
+        return True
+    return False
+
+
+def download_reels(url) -> bytes:
+    """
+    Download reels video
+
+    :param url: instagram reels url
+    :return: bytes
+    """
+    driver.get(url)
+
+    wait = WebDriverWait(driver, 10)
+
+    element = wait.until(EC.presence_of_element_located((By.TAG_NAME, 'video')))
+
+    reel_source = element.get_attribute('src')
+
+    return r.get(reel_source).content
+
+
+
+
+
+
+
 async def start(msg: types.Message):
     await msg.answer("Привет! Это бот для загрузки видео из TikTok и YouTube. Просто введите ссылку и получите видео. Удачи:)")
 
@@ -96,9 +149,9 @@ async def downloader(msg: types.Message):
 
             elif msg.text[:19]=="https://youtube.com" or msg.text[:17]=="https://youtu.be/":
 
+                await msg.answer("Ждите, видео скачивается:)")
                 yt = pytube.YouTube(msg.text)
                 stream = yt.streams.get_highest_resolution()
-                await msg.answer("Ждите, видео скачивается:)")
 
                 print(yt.thumbnail_url)
                 thumbnail_url=requests.get(yt.thumbnail_url.split('?')[0])
@@ -127,6 +180,36 @@ async def downloader(msg: types.Message):
                 finally:
                     os.remove(th_a)
                     os.remove(b)
+            elif is_instagram_reels_url(msg.text):
+                await msg.answer("Ждите, видео скачивается:)")
+                reel=download_reels(msg.text)
+
+                
+                
+
+
+                a=msg.text[30:].split('?')[0].replace('/','_')+".mp4"
+                with open(a, 'wb') as fd:
+                    fd.write(reel)
+                
+                
+                b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
+                os.rename(a,b)
+            
+                print(f"B IS HERE: {b}")
+
+                try:
+                    video_=FSInputFile(b)
+                    await bot.send_video(msg.chat.id,video_)
+                except Exception as e:
+                    await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
+                    print(e)
+                    await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
+                finally:
+                    os.remove(b)
+
+                #await bot.send_video(msg.chat.id,video=,supports_streaming=True)
+
             else:
                 await msg.answer("Неправильный url")
     
