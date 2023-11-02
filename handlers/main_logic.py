@@ -34,10 +34,10 @@ from selenium import webdriver
 import requests as r
 from selenium.webdriver.common.by import By
 
-options = webdriver.ChromeOptions()
+options = webdriver.FirefoxOptions()
 options.add_argument('--headless')
 
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Firefox(options=options)
 
 
 def is_instagram_reels_url(url) -> bool:
