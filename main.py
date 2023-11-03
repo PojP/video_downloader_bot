@@ -36,6 +36,7 @@ dp = Dispatcher()
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
     main_logic.register_handlers(dp,bot)
     await dp.start_polling(bot)
 
