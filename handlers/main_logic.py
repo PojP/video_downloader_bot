@@ -34,10 +34,6 @@ from selenium import webdriver
 import requests as r
 from selenium.webdriver.common.by import By
 
-options = webdriver.FirefoxOptions()
-options.add_argument('--headless')
-
-driver = webdriver.Firefox(options=options)
 
 
 def is_instagram_reels_url(url) -> bool:
@@ -60,9 +56,14 @@ def download_reels(url) -> bytes:
     :param url: instagram reels url
     :return: bytes
     """
+
+    options = webdriver.FirefoxOptions()
+    options.add_argument('--headless')
+
+    driver = webdriver.Firefox(options=options)
     driver.get(url)
 
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 15)
 
     element = wait.until(EC.presence_of_element_located((By.TAG_NAME, 'video')))
 
