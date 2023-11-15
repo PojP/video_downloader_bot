@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package translate;
+
+service VoTranslate {
+    rpc DownloadTranslation(Link) returns (Filename) {}
+  }
+
+message Link {
+  string link=1;
+  }
+
+message Filename {
+    string filename=1;
+  }

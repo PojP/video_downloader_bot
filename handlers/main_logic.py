@@ -33,6 +33,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 import requests as r
 from selenium.webdriver.common.by import By
+import grpc
+import translate_pb2
+import translate_pb2_grpc
+
+async def download_speech(link:str):
+    async with grpc.aio.insecure_channel("localhost:50051") as channel:
+        stub = translate_pb2_grpc.VoTranslateStub(channel)
+        return await stub.DownloadTranslation(translate_pb2.Link(link=link))
 
 
 
@@ -73,6 +81,38 @@ def download_reels(url) -> bytes:
 
 
 
+async def download_youtube_link(msg:types.Message):
+    await msg.answer("Ждите, видео скачивается:)")
+    yt = pytube.YouTube(msg.text)
+    stream = yt.streams.get_highest_resolution()
+
+    print(yt.thumbnail_url)
+    thumbnail_url=requests.get(yt.thumbnail_url.split('?')[0])
+                
+    th_a=msg.text[23:].split('?')[0].replace('/','_')+".jpeg"
+    with open(th_a, 'wb') as fd:
+        fd.write(thumbnail_url.content)
+                
+
+
+    a=stream.download()
+    b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
+    os.rename(a,b)
+    print(b)
+    try:
+        video_=FSInputFile(b)
+        thumbnail_=FSInputFile(th_a)
+        await bot.send_video(msg.chat.id,
+                                         thumbnail=thumbnail_,
+                                         video=video_,
+                                         supports_streaming=True)
+    except Exception as e:
+        await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
+        print(e)
+        await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
+    finally:
+        os.remove(th_a)
+        os.remove(b)
 
 
 
@@ -149,38 +189,6 @@ async def downloader(msg: types.Message):
                     os.remove(b)
 
             elif msg.text[:19]=="https://youtube.com" or msg.text[:17]=="https://youtu.be/":
-
-                await msg.answer("Ждите, видео скачивается:)")
-                yt = pytube.YouTube(msg.text)
-                stream = yt.streams.get_highest_resolution()
-
-                print(yt.thumbnail_url)
-                thumbnail_url=requests.get(yt.thumbnail_url.split('?')[0])
-                
-                th_a=msg.text[23:].split('?')[0].replace('/','_')+".jpeg"
-                with open(th_a, 'wb') as fd:
-                    fd.write(thumbnail_url.content)
-                
-
-
-                a=stream.download()
-                b=a[:-4]+str(datetime.now().time()).replace(':',"_").replace('.','_')+".mp4"
-                os.rename(a,b)
-                print(b)
-                try:
-                    video_=FSInputFile(b)
-                    thumbnail_=FSInputFile(th_a)
-                    await bot.send_video(msg.chat.id,
-                                         thumbnail=thumbnail_,
-                                         video=video_,
-                                         supports_streaming=True)
-                except Exception as e:
-                    await bot.send_message(524845066,f"Ошибка!!\nЛинк: {msg.text} \n{e}")
-                    print(e)
-                    await msg.answer("Не вышло отправить видео. Ошибка отправлена разработчику")
-                finally:
-                    os.remove(th_a)
-                    os.remove(b)
             elif is_instagram_reels_url(msg.text):
                 await msg.answer("Ждите, видео скачивается:)")
                 reel=download_reels(msg.text)
