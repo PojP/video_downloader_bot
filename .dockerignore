@@ -1,0 +1,4 @@
+grpc/translate.proto
+src/download_speech.py
+vot-cli/*
+

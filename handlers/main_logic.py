@@ -7,10 +7,9 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram import F
 import validators
 
-from src.instagram import download_reel,is_instagram_reels_url
 from src.tiktok import download_tiktok,is_tiktok_url
 from src.youtube import download_youtube,is_youtube_url
-from src.download_speech import download_speech
+
 
 
 async def start(msg: types.Message):
@@ -24,8 +23,6 @@ async def downloader(msg: types.Message, bot: Bot):
                 await download_tiktok(msg,bot)
             elif await is_youtube_url(msg.text):
                 await download_youtube(msg,bot)
-            elif await is_instagram_reels_url(msg.text):
-                await download_reel(msg,bot)
             else:
                 await msg.answer("Неправильный url")
     
